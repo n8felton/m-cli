@@ -1,0 +1,55 @@
+#!/bin/bash
+
+help(){
+    cat<<__EOF__
+    usage:  m hardware [ cpu | memory | model | help ]
+
+    Examples:
+      m hardware cpu cores # displays the number of CPU cores
+      m hardware cpu desc  # displays the description of the CPU
+
+      m hardware memory    # displays the installed ammount of memory in GB
+
+      m hardware model     # displays the model identifer
+__EOF__
+}
+
+cpu(){
+    case $1 in
+        cores)
+            # The maximum number of physical processors that could be available this boot
+            sysctl -n hw.physicalcpu_max
+            ;;
+        desc)
+            sysctl -n machdep.cpu.brand_string
+            ;;
+    esac
+}
+
+memory(){
+    hwmemsize=$(sysctl -n hw.memsize)
+    # 1024**3 = GB
+    printf '%d GB\n' $(( hwmemsize / $((1024**3)) ))
+}
+
+
+case $1 in
+    help)
+        help
+        ;;
+    cpu)
+        shift
+        cpu $@
+        ;;
+    memory)
+        memory
+        ;;
+    model)
+        sysctl -n hw.model
+        ;;
+    *)
+        help
+        ;;
+esac
+
+# vim: set ts=4 sw=4 softtabstop=4 expandtab
